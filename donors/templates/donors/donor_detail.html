@@ -1,0 +1,41 @@
+{% extends 'donors/base.html' %}
+
+{% block content %}
+    <h2>{{ donor.full_name }}</h2>
+    <div class="blood-badge big">{{ donor.blood_group }}</div>
+
+    <table class="detail-table">
+        <tr><th>Age</th><td>{{ donor.age }}</td></tr>
+        <tr><th>Gender</th><td>{{ donor.get_gender_display }}</td></tr>
+        <tr><th>City</th><td>{{ donor.city }}</td></tr>
+        <tr>
+            <th>Phone</th>
+            <td>
+                {% if user.is_authenticated %}
+                   {{ donor.phone }}
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}">Login to view phone number</a>
+                {% endif %}
+            </td>
+        </tr>
+        
+        <tr>
+            <th>Last donation</th>
+            <td>{{ donor.last_donation_date|default:"Not donated yet" }}</td>
+        </tr>
+        <tr>
+            <th>Availability</th>
+            <td>
+                {% if donor.is_available %}
+                    <span class="status available">Available to donate</span>
+                {% else %}
+                    <span class="status unavailable">Available from {{ donor.next_available_date|date:"d M Y" }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr><th>Registered on</th><td>{{ donor.created_at|date:"d M Y" }}</td></tr>
+    </table>
+
+    <br>
+    <a href="{% url 'donor_list' %}"><button>Back to list</button></a>
+{% endblock %}

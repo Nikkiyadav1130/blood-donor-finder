@@ -1,0 +1,61 @@
+{% extends 'donors/base.html' %}
+
+{% block content %}
+    <h2>Blood Requests</h2>
+
+    <form method="get" class="search-form">
+        <div>
+            <label for="blood_group">Blood Group</label>
+            <select name="blood_group" id="blood_group">
+                <option value="">All</option>
+                {% for group in blood_groups %}
+                    <option value="{{ group }}" {% if group == selected_blood_group %}selected{% endif %}>
+                        {{ group }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="city">City</label>
+            <input type="text" name="city" id="city" value="{{ searched_city }}" placeholder="e.g. Moradabad">
+        </div>
+        <div class="search-buttons">
+            <button type="submit">Search</button>
+            <a href="{% url 'request_list' %}" class="reset-link">Reset</a>
+        </div>
+    </form>
+
+    <a href="{% url 'request_create' %}"><button>Post a Request</button></a>
+    <p>Open requests: {{ blood_requests|length }}</p>
+
+    {% for req in blood_requests %}
+        <div class="request-card urgency-{{ req.urgency }}">
+            <div class="request-header">
+                <strong>{{ req.patient_name }}</strong>
+                <span class="blood-badge">{{ req.blood_group }}</span>
+            </div>
+            <p>
+                {{ req.units_needed }} unit(s) needed at {{ req.hospital }}, {{ req.city }}<br>
+                Urgency: <strong>{{ req.get_urgency_display }}</strong>
+                | Posted {{ req.created_at|date:"d M Y" }}
+            </p>
+            {% if req.note %}<p>{{ req.note }}</p>{% endif %}
+            <p>
+                Contact:
+                {% if user.is_authenticated %}
+                    {{ req.contact_phone }}
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}">Login to view contact number</a>
+                {% endif %}
+            </p>
+            {% if user == req.requester %}
+                <form method="post" action="{% url 'request_fulfill' req.pk %}">
+                    {% csrf_token %}
+                    <button type="submit">Mark as Fulfilled</button>
+                </form>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No open blood requests found.</p>
+    {% endfor %}
+{% endblock %}

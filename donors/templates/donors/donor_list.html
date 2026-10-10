@@ -1,0 +1,57 @@
+{% extends 'donors/base.html' %}
+
+{% block content %}
+    <h2>Find Blood Donors</h2>
+
+    <form method="get" class="search-form">
+        <div>
+            <label for="blood_group">Blood Group</label>
+            <select name="blood_group" id="blood_group">
+                <option value="">All</option>
+                {% for group in blood_groups %}
+                    <option value="{{ group }}" {% if group == selected_blood_group %}selected{% endif %}>
+                        {{ group }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="city">City</label>
+            <input type="text" name="city" id="city" value="{{ searched_city }}" placeholder="e.g. Moradabad">
+        </div>
+
+                <div class="checkbox-field">
+            <label>
+                <input type="checkbox" name="available" value="1" {% if available_only %}checked{% endif %}>
+                Available only
+            </label>
+        </div>
+
+        <div class="search-buttons">
+            <button type="submit">Search</button>
+            <a href="{% url 'donor_list' %}" class="reset-link">Reset</a>
+        </div>
+    </form>
+
+    <p>Donors found: {{ donors|length }}</p>
+
+    {% for donor in donors %}
+        <div class="donor-card">
+            <div>
+                <strong>{{ donor.full_name }}</strong><br>
+                {{ donor.city }}<br>
+                {% if donor.is_available %}
+                    <span class="status available">Available</span>
+                {% else %}
+                    <span class="status unavailable">Available from {{ donor.next_available_date|date:"d M Y" }}</span>
+                {% endif %}
+            </div>
+            <div class="blood-badge">{{ donor.blood_group }}</div>
+            <a href="{% url 'donor_detail' donor.pk %}"><button>View Details</button></a>
+        </div>
+
+    {% empty %}
+    
+        <p>No donors found matching your search.</p>
+    {% endfor %}
+{% endblock %}

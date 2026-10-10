@@ -1,0 +1,10 @@
+{% extends 'donors/base.html' %}
+
+{% block content %}
+    <h2>Post a Blood Request</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit Request</button>
+    </form>
+{% endblock %}
