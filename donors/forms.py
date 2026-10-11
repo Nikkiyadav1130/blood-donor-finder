@@ -7,11 +7,16 @@ class DonorRegistrationForm(forms.ModelForm):
     username = forms.CharField(max_length=150)
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
+    consent_given = forms.BooleanField(
+        required=True,
+        label="I agree to share my contact details with logged-in users of this site.",
+        error_messages={'required': "You must agree to share your contact details to register."},
+    )
 
     class Meta:
         model = Donor
         fields = ['full_name', 'age', 'gender', 'blood_group',
-                  'phone', 'city', 'last_donation_date']
+                  'phone', 'city', 'last_donation_date', 'consent_given']
         widgets = {
             'last_donation_date': forms.DateInput(attrs={'type': 'date'}),
         }

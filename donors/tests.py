@@ -43,6 +43,7 @@ class RegistrationTests(TestCase):
             'phone': '9123456780',
             'city': 'Bareilly',
             'last_donation_date': '',
+            'consent_given': True,
         }
 
     def test_register_page_loads(self):
@@ -73,6 +74,13 @@ class RegistrationTests(TestCase):
         response = self.client.post(self.url, self.valid_data)
         self.assertIn('username', response.context['form'].errors)
         self.assertEqual(Donor.objects.count(), 1)
+
+    def test_registration_requires_consent(self):
+        data = {**self.valid_data}
+        data.pop('consent_given')
+        response = self.client.post(self.url, data)
+        self.assertIn('consent_given', response.context['form'].errors)
+        self.assertEqual(Donor.objects.count(), 0)
 
 
 class AuthenticationTests(TestCase):

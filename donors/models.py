@@ -31,7 +31,9 @@ class Donor(models.Model):
     city = models.CharField(max_length=100)
     last_donation_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    consent_given = models.BooleanField(default=False)
 
+    
     DONATION_GAP_DAYS = 90
 
     @property
@@ -69,6 +71,7 @@ class BloodRequest(models.Model):
     note = models.TextField(blank=True)
     is_fulfilled = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    
 
     def __str__(self):
         return f"{self.patient_name} needs {self.blood_group} in {self.city}"

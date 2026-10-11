@@ -2,6 +2,10 @@
 
 {% block content %}
     <h2>Donor Registration</h2>
+    <p class="privacy-note">
+        Your phone number is visible only to logged-in users, so people who need blood can contact you.
+        Please register only if you are 18 or older and willing to donate.
+    </p>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
