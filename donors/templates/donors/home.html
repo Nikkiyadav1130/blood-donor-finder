@@ -1,7 +1,125 @@
 {% extends 'donors/base.html' %}
 
+{% block container_class %}plain{% endblock %}
+
 {% block content %}
-    <h1>Smart Blood Donor Finder</h1>
-    <p>One blood donation can save a life. Register as a donor today.</p>
-    <a href="{% url 'register' %}"><button>Register as Donor</button></a>
+<div class="dash-layout">
+
+    <div class="dash-main">
+        <section class="hero-card">
+            <div class="hero-text">
+                <h1>Smart <span class="accent-red">Blood Donor</span> Finder System</h1>
+                <h3 class="hero-sub">Because every drop counts...</h3>
+                <p>Find blood donors near you, get help in emergencies, and be part of a life-saving community.</p>
+                <div class="hero-buttons-left">
+                    <a href="{% url 'donor_list' %}" class="btn">Find a Donor</a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'register' %}" class="btn btn-outline">Register as Donor</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="hero-art"><div class="drop"><span>&hearts;</span></div></div>
+        </section>
+
+        <section class="card search-card">
+            <h2>Search for a Blood Donor</h2>
+            <p class="muted">Enter the required details to find compatible donors near you.</p>
+            <form method="get" action="{% url 'donor_list' %}" class="search-form">
+                <div>
+                    <label for="blood_group">Blood Group</label>
+                    <select name="blood_group" id="blood_group">
+                        <option value="">All</option>
+                        {% for group in blood_groups %}
+                            <option value="{{ group }}">{{ group }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="city">Area / City</label>
+                    <input type="text" name="city" id="city" placeholder="Enter area or city">
+                </div>
+                <div class="search-buttons">
+                    <button type="submit">Search</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="card">
+            <div class="card-head">
+                <h2>Available Donors</h2>
+                <a href="{% url 'donor_list' %}" class="view-all">View All &rarr;</a>
+            </div>
+            {% if available_donors %}
+                <div class="table-wrap">
+                    <table class="dash-table">
+                        <thead>
+                            <tr><th>Name</th><th>Blood Group</th><th>City</th><th>Contact</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for d in available_donors %}
+                            <tr>
+                                <td>
+                                    <span class="mini-avatar">{{ d.full_name|first|upper }}</span>
+                                    <a href="{% url 'donor_detail' d.pk %}" class="name-link">{{ d.full_name }}</a>
+                                </td>
+                                <td><span class="group-pill">{{ d.blood_group }}</span></td>
+                                <td>{{ d.city }}</td>
+                                <td>
+                                    {% if user.is_authenticated %}
+                                        <a href="tel:{{ d.phone }}" class="call-btn">Call</a>
+                                    {% else %}
+                                        <a href="{% url 'login' %}" class="call-btn muted-btn">Login to call</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="muted">No available donors yet. Be the first to register!</p>
+            {% endif %}
+        </section>
+    </div>
+
+    <aside class="dash-side">
+        <section class="card welcome-card">
+            <div class="welcome-icon">&#129656;</div>
+            <div>
+                <h3>Welcome{% if user.is_authenticated %}, {{ user.username }}{% endif %}!</h3>
+                <p class="muted">Together we can make a difference.</p>
+            </div>
+        </section>
+        <div class="save-note">
+            <strong>Blood donation saves lives</strong>
+            <p>One donation can help up to 3 people!</p>
+        </div>
+
+        <section class="card">
+            <h3 class="side-heading">Quick Stats</h3>
+            <div class="stats-grid">
+                <div class="stat-card stat-red"><span>Total Donors</span><strong>{{ total_donors }}</strong></div>
+                <div class="stat-card stat-blue"><span>Blood Groups</span><strong>{{ blood_groups_count }}</strong></div>
+                <div class="stat-card stat-green"><span>Areas Covered</span><strong>{{ cities_count }}</strong></div>
+                <div class="stat-card stat-purple"><span>Requests Fulfilled</span><strong>{{ fulfilled_count }}</strong></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h3 class="side-heading">Recent Activity</h3>
+            {% for a in activity %}
+                <div class="activity-item">
+                    <span class="dot dot-{{ a.kind }}"></span>
+                    <div>
+                        <div class="activity-text">{{ a.text }}</div>
+                        <small class="muted">{{ a.time|timesince }} ago</small>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="muted">No activity yet.</p>
+            {% endfor %}
+        </section>
+    </aside>
+
+</div>
 {% endblock %}

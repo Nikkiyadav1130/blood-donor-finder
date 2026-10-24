@@ -1,74 +1,96 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Blood Donor Finder</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; }
-        nav { background: #c0392b; padding: 15px 30px; display: flex; align-items: center; }
-        nav a { color: white; text-decoration: none; margin-right: 20px; font-weight: bold; }
-        nav .user-info { color: white; margin-left: auto; margin-right: 15px; }
-        nav form { margin: 0; }
-        nav form button { background: white; color: #c0392b; padding: 6px 14px; font-weight: bold; }
-        .container { max-width: 800px; margin: 30px auto; background: white; padding: 25px; border-radius: 8px; }
-        .message { background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin-bottom: 15px; }
-        input, select { padding: 8px; margin: 4px 0 10px; width: 100%; box-sizing: border-box; }
-        button { background: #c0392b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        .errorlist { color: red; margin: 0; padding-left: 18px; }
-        .donor-card { display: flex; align-items: center; justify-content: space-between; border: 1px solid #ddd; border-radius: 8px; padding: 12px 16px; margin-bottom: 10px; }
-        .blood-badge { background: #c0392b; color: white; font-weight: bold; padding: 6px 12px; border-radius: 20px; }
-        .blood-badge.big { display: inline-block; margin-bottom: 15px; font-size: 18px; }
-        .detail-table { width: 100%; border-collapse: collapse; }
-        .detail-table th, .detail-table td { text-align: left; padding: 10px; border-bottom: 1px solid #eee; }
-        .detail-table th { width: 40%; color: #555; }
-        .search-form { display: flex; gap: 15px; align-items: flex-end; margin-bottom: 20px; padding: 15px; background: #fafafa; border: 1px solid #eee; border-radius: 8px; }
-        .search-form > div { flex: 1; }
-        .search-form label { display: block; font-size: 14px; color: #555; }
-        .search-form input, .search-form select { margin-bottom: 0; }
-        .search-buttons { display: flex; align-items: center; gap: 12px; flex: 0 0 auto !important; }
-        .reset-link { color: #c0392b; text-decoration: none; font-weight: bold; }
-        .chart-img { max-width: 100%; height: auto; }
-        .status { font-size: 13px; font-weight: bold; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 4px; }
-        .status.available { background: #d4edda; color: #155724; }
-        .status.unavailable { background: #f8d7da; color: #721c24; }
-        .checkbox-field { flex: 0 0 auto !important; }
-        .checkbox-field label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #555; white-space: nowrap; }
-        .checkbox-field input { width: auto; margin: 0; }
-        .request-card { border: 1px solid #ddd; border-left: 5px solid #999; border-radius: 8px; padding: 12px 16px; margin-top: 12px; }
-        .request-card.urgency-urgent { border-left-color: #e67e22; }
-        .request-card.urgency-critical { border-left-color: #c0392b; }
-        .request-header { display: flex; justify-content: space-between; align-items: center; }
-        .request-card p { margin: 8px 0; }
-        input[type="checkbox"] { width: auto; margin-right: 6px; }
-        .privacy-note { background: #fff8e1; border-left: 4px solid #f1c40f; padding: 10px 12px; font-size: 14px; color: #555; }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'donors/css/style.css' %}">
 </head>
 <body>
-    <nav>
-        <a href="{% url 'home' %}">Home</a>
-        <a href="{% url 'donor_list' %}">Donors</a>
-        <a href="{% url 'statistics' %}">Statistics</a>
-        <a href="{% url 'request_list' %}">Requests</a>
+    <div class="app">
 
-        {% if user.is_authenticated %}
-            <span class="user-info">Hello, {{ user.username }}</span>
-            <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit">Logout</button>
-            </form>
-        {% else %}
-            <a href="{% url 'register' %}">Register as Donor</a>
-            <a href="{% url 'login' %}">Login</a>
-        {% endif %}
-    </nav>
-    <div class="container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        {% block content %}{% endblock %}
+        <aside class="sidebar">
+            <a href="{% url 'home' %}" class="logo">
+                <span class="logo-icon">🩸</span>
+                <span class="logo-name">BloodFinder</span>
+                <span class="logo-sub">Donate Blood &middot; Save Lives</span>
+            </a>
+
+            <nav class="side-nav">
+                <a href="{% url 'home' %}" class="side-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <span class="side-icon">🏠</span> Home
+                </a>
+                <a href="{% url 'donor_list' %}" class="side-link {% if request.resolver_match.url_name == 'donor_list' or request.resolver_match.url_name == 'donor_detail' %}active{% endif %}">
+                    <span class="side-icon">🔍</span> Find Donor
+                </a>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'register' %}" class="side-link {% if request.resolver_match.url_name == 'register' %}active{% endif %}">
+                    <span class="side-icon">➕</span> Register Donor
+                </a>
+                {% endif %}
+                <a href="{% url 'request_list' %}" class="side-link {% if request.resolver_match.url_name == 'request_list' or request.resolver_match.url_name == 'request_create' %}active{% endif %}">
+                    <span class="side-icon">🆘</span> Requests
+                </a>
+                <a href="{% url 'statistics' %}" class="side-link {% if request.resolver_match.url_name == 'statistics' %}active{% endif %}">
+                    <span class="side-icon">📊</span> Analytics
+                </a>
+            </nav>
+
+            <div class="side-bottom">
+                {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="side-link side-logout">
+                            <span class="side-icon">🚪</span> Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="side-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}">
+                        <span class="side-icon">🔑</span> Login
+                    </a>
+                {% endif %}
+            </div>
+        </aside>
+
+        <div class="main">
+            <header class="topbar">
+                <div class="topbar-title">Smart Blood Donor Finder</div>
+                <div class="topbar-right">
+                    {% if user.is_authenticated %}
+                        <div class="user-chip">
+                            <span class="avatar">{{ user.username|first|upper }}</span>
+                            <span class="user-meta">
+                                <strong>{{ user.username }}</strong>
+                                <small>{% if user.is_staff %}Admin{% else %}User{% endif %}</small>
+                            </span>
+                        </div>
+                    {% else %}
+                        <a class="topbar-link" href="{% url 'login' %}">Login</a>
+                        <a class="btn" href="{% url 'register' %}">Become a Donor</a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <main class="content">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="message">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="container {% block container_class %}{% endblock %}">
+                    {% block content %}{% endblock %}
+                </div>
+                
+            </main>
+
+            <footer>Smart Blood Donor Finder &middot; One donation can save up to three lives</footer>
+        </div>
+
     </div>
 </body>
 </html>

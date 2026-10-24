@@ -1,8 +1,50 @@
 {% extends 'donors/base.html' %}
 
-{% block content %}
-    <h2>Donor Statistics</h2>
-    <p>Total registered donors: <strong>{{ total_donors }}</strong></p>
+{% block container_class %}plain{% endblock %}
 
-    <img src="data:image/png;base64,{{ chart }}" alt="Donors per blood group chart" class="chart-img">
+{% block content %}
+<div class="an-head">
+    <h2>Analytics</h2>
+    <p class="muted">Quick insights into donors and requests.</p>
+</div>
+
+<div class="an-kpis">
+    <div class="an-kpi kpi-red">
+        <div class="an-icon">🩸</div>
+        <div><span>Total Donors</span><strong>{{ total_donors }}</strong><small>{{ available_count }} available now</small></div>
+    </div>
+    <div class="an-kpi kpi-green">
+        <div class="an-icon">👥</div>
+        <div><span>Blood Groups Available</span><strong>{{ groups_count }}</strong><small>out of 8 groups</small></div>
+    </div>
+    <div class="an-kpi kpi-purple">
+        <div class="an-icon">💜</div>
+        <div><span>Requests Fulfilled</span><strong>{{ fulfilled_count }}</strong><small>helped so far</small></div>
+    </div>
+    <div class="an-kpi kpi-blue">
+        <div class="an-icon">🚨</div>
+        <div><span>Emergency Requests</span><strong>{{ emergency_count }}</strong><small>urgent or critical, open</small></div>
+    </div>
+</div>
+
+{% if total_donors > 0 %}
+    <div class="an-grid">
+        <section class="card">
+            <h3 class="side-heading">Donors by Blood Group</h3>
+            <img src="data:image/png;base64,{{ chart }}" alt="Donors by blood group bar chart" class="chart-img">
+        </section>
+
+        <section class="card">
+            <h3 class="side-heading">Blood Group Distribution</h3>
+            <img src="data:image/png;base64,{{ pie_chart }}" alt="Blood group distribution pie chart" class="chart-img">
+        </section>
+    </div>
+{% else %}
+    <section class="card empty-state">
+        <div class="empty-icon">📊</div>
+        <h3>No data yet</h3>
+        <p class="muted">Charts will appear here once donors start registering.</p>
+        <a href="{% url 'register' %}" class="btn">Become a Donor</a>
+    </section>
+{% endif %}
 {% endblock %}
